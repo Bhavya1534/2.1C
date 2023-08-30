@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.1C (a) VUE</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.6/dist/vue.global.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+
+<!-- Input Handling -->
+      <div>
+        <h2>Input Handling</h2>
+        <input type="text" v-model="textInput">
+        <p>Entered text: {{ textInput }}</p>
+      </div>
+    </div>
+
+<!-- Toggling Text Rendering -->
+      <div>
+        <h2>Toggling Text Rendering</h2>
+        <p v-if="isTextVisible">This text is rendered using v-if.</p>
+        <p v-else>This text is rendered using v-else.</p>
+        <p v-show="isShown">This text is shown/hidden using v-show.</p>
+      </div>
+
+<!-- Looping with v-for -->
+      <div>
+        <h2>Looping using v-for</h2>
+        <ul>
+          <li v-for="(item, index) in itemList" :key="index">{{ item }}</li>
+        </ul>
+      </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          isTextVisible: true,
+          isShown: true,
+          itemList: ['Item 1', 'Item 2', 'Item 3'],
+          textInput: ''
+        };
+      }
+    });
+
+    app.mount('#app');
+  </script>
+  </body>
+</html>
