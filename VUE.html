@@ -1,53 +1,105 @@
 <!DOCTYPE html>
-
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task 2.1C (a) VUE</title>
+    <title>Advanced Vue.js App</title>
+    <!-- Include Vue.js from a CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3.2.6/dist/vue.global.js"></script>
-  </head>
-
-  <body>
+    <style>
+        /* Your custom styles here */
+    </style>
+</head>
+<body style="background-color: turquoise">
     <div id="app">
+        <!-- Header Section -->
+        <header>
+            <h1>Welcome to the Advanced Vue.js App</h1>
+        </header>
 
-<!-- Input Handling -->
-      <div>
-        <h2>Input Handling</h2>
-        <input type="text" v-model="textInput">
-        <p>Entered text: {{ textInput }}</p>
-      </div>
+        <!-- Input Handling Section -->
+        <section>
+            <h2>Input Handling</h2>
+            <form @submit.prevent="handleSubmit">
+                <label for="textInput">Enter Text:</label>
+                <input type="text" id="textInput" v-model="textInput" @input="handleInput">
+                <p>Entered text: <span style="color: black;">{{ textInput }}</span></p>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+        <!-- Toggling Text Rendering Section -->
+        <section>
+            <h2>Toggling Text Rendering</h2>
+            <button @click="toggleTextVisibility">Toggle Text</button>
+            <p v-if="isTextVisible" style="font-size: 18px; color: #007bff;">This text is rendered using v-if.</p>
+            <p v-else style="font-size: 18px; color: #e74c3c;">This text is rendered using v-else.</p>
+            <p v-show="isShown" style="font-size: 18px; color: #2ecc71;">This text is shown/hidden using v-show.</p>
+        </section>
+
+        <!-- Dynamic Lists Section -->
+        <section>
+            <h2>Dynamic Lists</h2>
+            <form @submit.prevent="addItem">
+                <label for="newItem">Add Item:</label>
+                <input type="text" id="newItem" v-model="newItem">
+                <button type="submit">Add</button>
+            </form>
+            <ul>
+                <li v-for="(item, index) in itemList" :key="index" style="color: #333; background-color: #f7f7f7; padding: 5px; border-radius: 5px;">
+                    {{ item }}
+                    <button @click="removeItem(index)" style="background-color: #e74c3c; color: #fff; padding: 2px 5px; border: none; border-radius: 3px; font-size: 14px; cursor: pointer; margin-left: 10px;">Remove</button>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Computed Property Section -->
+        <section>
+            <h2>Computed Property</h2>
+            <p>Total items: {{ itemCount }}</p>
+        </section>
     </div>
 
-<!-- Toggling Text Rendering -->
-      <div>
-        <h2>Toggling Text Rendering</h2>
-        <p v-if="isTextVisible">This text is rendered using v-if.</p>
-        <p v-else>This text is rendered using v-else.</p>
-        <p v-show="isShown">This text is shown/hidden using v-show.</p>
-      </div>
+    <!-- Custom JavaScript for Vue.js App -->
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    isTextVisible: true,
+                    isShown: true,
+                    itemList: ['Item 1', 'Item 2', 'Item 3'],
+                    textInput: '',
+                    newItem: '',
+                };
+            },
+            methods: {
+                toggleTextVisibility() {
+                    this.isTextVisible = !this.isTextVisible;
+                },
+                handleInput() {
+                    // Custom input handling logic can be added here
+                },
+                addItem() {
+                    if (this.newItem.trim() !== '') {
+                        this.itemList.push(this.newItem);
+                        this.newItem = '';
+                    }
+                },
+                removeItem(index) {
+                    this.itemList.splice(index, 1);
+                },
+                handleSubmit() {
+                    // Handle form submission
+                },
+            },
+            computed: {
+                itemCount() {
+                    return this.itemList.length;
+                },
+            },
+        });
 
-<!-- Looping with v-for -->
-      <div>
-        <h2>Looping using v-for</h2>
-        <ul>
-          <li v-for="(item, index) in itemList" :key="index">{{ item }}</li>
-        </ul>
-      </div>
-
-  <script>
-    const app = Vue.createApp({
-      data() {
-        return {
-          isTextVisible: true,
-          isShown: true,
-          itemList: ['Item 1', 'Item 2', 'Item 3'],
-          textInput: ''
-        };
-      }
-    });
-
-    app.mount('#app');
-  </script>
-  </body>
+        app.mount('#app');
+    </script>
+</body>
 </html>
