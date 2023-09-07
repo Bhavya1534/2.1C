@@ -1,46 +1,105 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager</title>
+  <title>Task Manager Pro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2; /* Change background color */
+      color: #333; /* Change font color */
+      font-size: 18px; /* Change font size */
+      margin: 0;
+      padding: 0;
+    }
+    /* ... (existing styles) ... */
+  </style>
 </head>
 <body>
-  <div id="app" class="task-manager">
-    <h2>Task Manager</h2>
-    <input v-model="newTask" @keyup.enter="addTask" placeholder="Enter a new task">
-    <ul>
-      <li v-for="(task, index) in tasks" :key="index" class="task-item" :class="{ 'completed': task.completed }">
-        <input type="checkbox" v-model="task.completed">
-        <span>{{ task.text }}</span>
-        <button @click="deleteTask(index)">Remove</button>
-      </li>
-    </ul>
+  <!-- ... (existing HTML content) ... -->
+
+  <!-- Task Sorting -->
+  <div class="task-sorting">
+    <label for="sort">Sort by:</label>
+    <select id="sort" v-model="sortCriteria">
+      <option value="default">Default</option>
+      <option value="dueDate">Due Date</option>
+      <option value="importance">Importance</option>
+      <option value="alphabetical">Alphabetical</option>
+    </select>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.0.0/dist/vue.global.js"></script>
+  <!-- Task Editing (Edit Task Popup) -->
+  <div class="popup" v-if="showEditPopup">
+    <div class="popup-content">
+      <h3>Edit Task</h3>
+      <input v-model="editedTask.text" placeholder="Task text">
+      <input type="date" v-model="editedTask.dueDate" placeholder="Due date">
+      <label for="important">Important</label>
+      <input type="checkbox" id="important" v-model="editedTask.important">
+      <button @click="saveEditedTask">Save</button>
+      <button @click="cancelEdit">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ... (existing HTML content) ... -->
+
   <script>
     const app = Vue.createApp({
       data() {
         return {
-          newTask: '',
-          tasks: []
+          // ... (existing data properties) ...
+          sortCriteria: 'default',
+          editedTask: {},
+          showEditPopup: false,
         };
       },
+      // ... (existing computed properties and methods) ...
       methods: {
-        addTask() {
-          if (this.newTask.trim() !== '') {
-            this.tasks.push({ text: this.newTask, completed: false });
-            this.newTask = '';
+        // ... (existing methods) ...
+
+        // Task Sorting
+        sortTasks() {
+          if (this.sortCriteria === 'dueDate') {
+            this.tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+          } else if (this.sortCriteria === 'importance') {
+            this.tasks.sort((a, b) => (a.important === b.important) ? 0 : a.important ? -1 : 1);
+          } else if (this.sortCriteria === 'alphabetical') {
+            this.tasks.sort((a, b) => a.text.localeCompare(b.text));
           }
         },
-        deleteTask(index) {
-          this.tasks.splice(index, 1);
-        }
-      }
+
+        // Task Editing (Edit Task Popup)
+        editTask(index) {
+          this.editedTask = { ...this.tasks[index] };
+          this.showEditPopup = true;
+        },
+
+        saveEditedTask() {
+          // Find the index of the edited task and update it
+          const index = this.tasks.findIndex(task => task.text === this.editedTask.text);
+          if (index !== -1) {
+            this.tasks[index] = { ...this.editedTask };
+          }
+
+          // Close the edit popup
+          this.showEditPopup = false;
+        },
+
+        cancelEdit() {
+          // Close the edit popup without saving changes
+          this.showEditPopup = false;
+        },
+      },
     });
 
     app.mount('#app');
   </script>
-</body>
-</html>
 
+  <!-- Credits to Bhavya Vaishnani -->
+  <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #777;">
+    This Task Manager Pro was created by Bhavya Vaishnani.
+  </footer>
+</body>
+</html>d
