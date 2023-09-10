@@ -1,105 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager Pro</title>
+  <title>Enhanced Todo App</title>
   <style>
+    /* Basic styling for the app */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2; /* Change background color */
-      color: #333; /* Change font color */
-      font-size: 18px; /* Change font size */
-      margin: 0;
+      font-family: calibri, black;
+      margin: 2;
+      padding: 2;
+      background-color: #eb9797;
+    }
+    .todo-app {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    h2 {
+      font-size: 48px;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 2px gray;
+      border-radius: 10px;
+      font-size: 32px;
+    }
+    ul {
+      list-style-type: none;
       padding: 0;
     }
-    /* ... (existing styles) ... */
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .todo-item {
+      background-color: #d7db93;
+      border-radius: 10px;
+      padding: 20px;
+      width: 200%;
+      transition: background-color 0.3s ease;
+    }
+    .completed .todo-item {
+      background-color: #f0f0f0; /* Faded color for completed tasks */
+      text-decoration: line-through;
+    }
+    .near-due .todo-item {
+      background-color: #ff6b6b; /* Highlight near due tasks */
+      animation: blinker 1s linear infinite;
+    }
+    @keyframes blinker {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    .due-date {
+      margin-left: auto;
+      color: #ff6b6b; /* Red color for due dates */
+    }
+    .category {
+      margin-right: 10px;
+    }
+    button {
+      background-color: #ff6b6b;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <!-- ... (existing HTML content) ... -->
-
-  <!-- Task Sorting -->
-  <div class="task-sorting">
-    <label for="sort">Sort by:</label>
-    <select id="sort" v-model="sortCriteria">
-      <option value="default">Default</option>
-      <option value="dueDate">Due Date</option>
-      <option value="importance">Importance</option>
-      <option value="alphabetical">Alphabetical</option>
-    </select>
-  </div>
-
-  <!-- Task Editing (Edit Task Popup) -->
-  <div class="popup" v-if="showEditPopup">
-    <div class="popup-content">
-      <h3>Edit Task</h3>
-      <input v-model="editedTask.text" placeholder="Task text">
-      <input type="date" v-model="editedTask.dueDate" placeholder="Due date">
-      <label for="important">Important</label>
-      <input type="checkbox" id="important" v-model="editedTask.important">
-      <button @click="saveEditedTask">Save</button>
-      <button @click="cancelEdit">Cancel</button>
+  <div id="app" class="todo-app">
+    <h2>Todo App</h2>
+    <input v-model="newTask" @keyup.enter="addTask" placeholder="Add a new task">
+    <input type="date" v-model="newDueDate" placeholder="Due Date">
+    <div>
+      <button @click="showIncomplete">Incomplete Tasks</button>
+      <button @click="showComplete">Complete Tasks</button>
+      <button @click="showAll">Show All</button>
     </div>
+    <ul>
+      <li v-for="(task, index) in displayedTasks" :key="index" class="todo-item"
+          :class="{ 'completed': task.completed, 'near-due': isNearDue(task.dueDate) }">
+        <input type="checkbox" v-model="task.completed">
+        <span>{{ task.text }}</span>
+        <span class="category">{{ task.category }}</span>
+        <span class="due-date">{{ task.dueDate }}</span>
+        <button @click="deleteTask(index)">Delete</button>
+      </li>
+    </ul>
   </div>
 
-  <!-- ... (existing HTML content) ... -->
-
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.0.0/dist/vue.global.js"></script>
   <script>
     const app = Vue.createApp({
       data() {
         return {
-          // ... (existing data properties) ...
-          sortCriteria: 'default',
-          editedTask: {},
-          showEditPopup: false,
+          newTask: '',
+          newDueDate: '',
+          tasks: [],
+          showCompleted: false,
+          showIncomplete: false,
         };
       },
-      // ... (existing computed properties and methods) ...
       methods: {
-        // ... (existing methods) ...
-
-        // Task Sorting
-        sortTasks() {
-          if (this.sortCriteria === 'dueDate') {
-            this.tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-          } else if (this.sortCriteria === 'importance') {
-            this.tasks.sort((a, b) => (a.important === b.important) ? 0 : a.important ? -1 : 1);
-          } else if (this.sortCriteria === 'alphabetical') {
-            this.tasks.sort((a, b) => a.text.localeCompare(b.text));
+        addTask() {
+          if (this.newTask.trim() !== '') {
+            this.tasks.push({
+              text: this.newTask,
+              completed: false,
+              category: 'General', // Default category
+              dueDate: this.newDueDate || 'No Due Date', // Default due date or "No Due Date"
+            });
+            this.newTask = '';
+            this.newDueDate = '';
           }
         },
-
-        // Task Editing (Edit Task Popup)
-        editTask(index) {
-          this.editedTask = { ...this.tasks[index] };
-          this.showEditPopup = true;
+        deleteTask(index) {
+          this.tasks.splice(index, 1);
         },
-
-        saveEditedTask() {
-          // Find the index of the edited task and update it
-          const index = this.tasks.findIndex(task => task.text === this.editedTask.text);
-          if (index !== -1) {
-            this.tasks[index] = { ...this.editedTask };
+        isNearDue(dueDate) {
+          if (dueDate === 'No Due Date') return false;
+          const today = new Date();
+          const taskDueDate = new Date(dueDate);
+          const timeDiff = taskDueDate - today;
+          return timeDiff > 0 && timeDiff <= 86400000; // 1 day = 86400000 milliseconds
+        },
+        showIncomplete() {
+          this.showIncomplete = true;
+          this.showCompleted = false;
+        },
+        showComplete() {
+          this.showIncomplete = false;
+          this.showCompleted = true;
+        },
+        showAll() {
+          this.showIncomplete = false;
+          this.showCompleted = false;
+        },
+      },
+      computed: {
+        displayedTasks() {
+          if (this.showIncomplete) {
+            return this.tasks.filter(task => !task.completed);
+          } else if (this.showCompleted) {
+            return this.tasks.filter(task => task.completed);
+          } else {
+            return this.tasks;
           }
-
-          // Close the edit popup
-          this.showEditPopup = false;
-        },
-
-        cancelEdit() {
-          // Close the edit popup without saving changes
-          this.showEditPopup = false;
         },
       },
     });
 
     app.mount('#app');
   </script>
-
-  <!-- Credits to Bhavya Vaishnani -->
-  <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #777;">
-    This Task Manager Pro was created by Bhavya Vaishnani.
-  </footer>
 </body>
-</html>d
+</html>
